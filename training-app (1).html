@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Martial Arts Training App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; }
+        .container { max-width: 400px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .header h1 { font-size: 28px; margin-bottom: 10px; }
+        .week-selector { display: flex; gap: 10px; justify-content: center; margin-bottom: 30px; flex-wrap: wrap; }
+        .day-btn { padding: 12px 8px; border: none; border-radius: 25px; background: rgba(255,255,255,0.2); color: white; font-weight: bold; cursor: pointer; transition: all 0.3s; min-width: 50px; }
+        .day-btn.active, .day-btn:hover { background: rgba(255,255,255,0.4); transform: scale(1.05); }
+        .training-card { background: white; border-radius: 20px; padding: 25px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .day-title { font-size: 24px; color: #333; margin-bottom: 15px; text-align: center; }
+        .workout { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #f8f9ff; border-radius: 15px; margin-bottom: 10px; }
+        .workout-type { font-weight: bold; font-size: 18px; color: #4a5568; }
+        .link-btn { background: linear-gradient(45deg, #667eea, #764ba2); color: white; padding: 10px 20px; border: none; border-radius: 25px; text-decoration: none; font-weight: bold; transition: transform 0.2s; }
+        .link-btn:hover { transform: scale(1.05); }
+        .ground-list { background: #f0f4ff; padding: 15px; border-radius: 15px; margin-top: 10px; }
+        .ground-item { padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
+        .ground-item:last-child { border-bottom: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🥋 Training App</h1>
+            <p>Select your training day</p>
+        </div>
+        
+        <div class="week-selector" id="weekSelector">
+            <!-- Days buttons will be generated here -->
+        </div>
+        
+        <div id="trainingContent">
+            <!-- Training content will load here -->
+        </div>
+    </div>
+
+    <script>
+        const trainingSchedule = {
+            "Monday": {
+                primary: "Kumita",
+                secondary: "Stretching",
+                links: {
+                    "Kumita": "https://youtube.com/playlist?list=PLHCNPOIaj2WeZiT5LE7MDF4NwYdMNA_1P&si=H35S8XIMW2R7ps4b"
+                }
+            },
+            "Tuesday": {
+                primary: "PT1",
+                secondary: "Ground Training",
+                ground: true
+            },
+            "Wednesday": {
+                primary: "Ladder Drills",
+                secondary: "Mobility Training",
+                links: {
+                    "Ladder Drills": "https://youtu.be/66oUAhI0nQQ?si=-rMDymSFaDtwmi5N",
+                    "Mobility Training": "https://youtu.be/9X-4dGjcIcQ?si=YhGNYFhk6iGVMExa"
+                }
+            },
+            "Thursday": {
+                primary: "Weight Training",
+                secondary: "Kata"
+            },
+            "Friday": {
+                primary: "Ippon Kumita",
+                secondary: "Active Recovery"
+            },
+            "Saturday": {
+                primary: "Kata",
+                secondary: "Stretching"
+            },
+            "Sunday": {
+                primary: "PT1",
+                secondary: "Ground Training",
+                ground: true
+            }
+        };
+
+        const groundExercises = [
+            "Setup", "Leg Raise", "Leg Rotation", "Shoulder Ups", "Leg Back Touch",
+            "Side Leg Touch", "Russian Twist", "Plank", "Side Plank", "Side Leg Raise",
+            "Superman Ups", "Cobra Push-ups", "Leg Catches", "Push-ups"
+        ];
+
+        function createDayButtons() {
+            const days = Object.keys(trainingSchedule);
+            const selector = document.getElementById('weekSelector');
+            days.forEach(day => {
+                const btn = document.createElement('button');
+                btn.className = 'day-btn';
+                btn.textContent = day.slice(0,3);
+                btn.onclick = () => showTraining(day);
+                selector.appendChild(btn);
+            });
+            // Show Monday by default
+            showTraining('Monday');
+        }
+
+        function showTraining(day) {
+            // Update active button
+            document.querySelectorAll('.day-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const schedule = trainingSchedule[day];
+            const content = document.getElementById('trainingContent');
+            
+            let html = `
+                <div class="training-card">
+                    <div class="day-title">${day}</div>
+                    <div class="workout">
+                        <span class="workout-type">🏆 Primary: ${schedule.primary}</span>
+                    </div>
+                    <div class="workout">
+                        <span class="workout-type">🥈 Secondary: ${schedule.secondary}</span>
+                    </div>
+            `;
+            
+            // Add links if available
+            if (schedule.links) {
+                Object.entries(schedule.links).forEach(([type, url]) => {
+                    html += `
+                        <a href="${url}" target="_blank" class="link-btn" style="display: block; text-align: center; margin: 15px 0;">
+                            📺 Watch ${type}
+                        </a>
+                    `;
+                });
+            }
+            
+            // Add ground exercises
+            if (schedule.ground) {
+                html += `
+                    <div class="ground-list">
+                        <h3 style="margin-bottom: 15px; color: #4a5568;">🥊 Ground Training:</h3>
+                `;
+                groundExercises.forEach(exercise => {
+                    html += `<div class="ground-item">• ${exercise}</div>`;
+                });
+                html += '</div>';
+            }
+            
+            html += '</div>';
+            content.innerHTML = html;
+        }
+
+        // Initialize app
+        createDayButtons();
+    </script>
+</body>
+</html>
